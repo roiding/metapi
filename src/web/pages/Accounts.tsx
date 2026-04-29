@@ -3477,6 +3477,16 @@ export default function Accounts() {
           setModelModal((state) => ({ ...state, manualModelsInput: value }))
         }
         onAddManualModels={handleAddManualModels}
+        onRemoveManualModel={async (modelName) => {
+          if (!modelModal.account) return;
+          try {
+            await api.removeAccountManualModels(modelModal.account.id, [modelName]);
+            toast.success(`已删除模型 ${modelName}`);
+            await loadModelModalModels(modelModal.account, {});
+          } catch (err: any) {
+            toast.error(err?.message || "删除失败");
+          }
+        }}
       />
     </div>
   );
