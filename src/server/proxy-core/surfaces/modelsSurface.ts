@@ -1,3 +1,5 @@
+import { getModelContextLength } from '../../services/modelContextLengthCache.js';
+
 function isSearchPseudoModel(modelName: string): boolean {
   const normalized = (modelName || '').trim().toLowerCase();
   if (!normalized) return false;
@@ -49,6 +51,7 @@ export async function listModelsSurface(input: ModelsSurfaceInput) {
       type: 'model' as const,
       display_name: id,
       created_at: now.toISOString(),
+      context_length: getModelContextLength(id),
     }));
     return {
       data,
@@ -65,6 +68,7 @@ export async function listModelsSurface(input: ModelsSurfaceInput) {
       object: 'model' as const,
       created: Math.floor(now.getTime() / 1000),
       owned_by: 'metapi',
+      context_length: getModelContextLength(id),
     })),
   };
 }

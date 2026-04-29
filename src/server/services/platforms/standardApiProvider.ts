@@ -4,6 +4,7 @@ import {
   type CheckinResult,
   type UserInfo,
 } from './base.js';
+import { extractContextLengthsFromPayload, setModelContextLengths } from '../modelContextLengthCache.js';
 
 type FetchModelsOptions = {
   baseUrl: string;
@@ -74,6 +75,11 @@ export abstract class StandardApiProviderAdapterBase extends BasePlatformAdapter
       : Array.isArray(payload?.data)
         ? payload.data.map((item: any) => item?.id)
         : null;
+    // Also extract and cache context_length from upstream when available
+    const contextLengths = extractContextLengthsFromPayload(payload);
+    if (contextLengths.size > 0) {
+      setModelContextLengths(contextLengths);
+    }
 
     if (!Array.isArray(rows)) {
       throw new Error('invalid standard models payload');

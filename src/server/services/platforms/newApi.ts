@@ -3,6 +3,7 @@ import type { RequestInit as UndiciRequestInit } from 'undici';
 import { createContext, runInContext } from 'node:vm';
 import { withSiteProxyRequestInit } from '../siteProxy.js';
 import { fetchJsonWithShieldCookieRetry } from './newApiShield.js';
+import { extractContextLengthsFromPayload, setModelContextLengths } from '../modelContextLengthCache.js';
 
 export class NewApiAdapter extends BasePlatformAdapter {
   readonly platformName: string = 'new-api';
@@ -839,6 +840,11 @@ export class NewApiAdapter extends BasePlatformAdapter {
 
   private extractOpenAiModels(payload: any): string[] {
     if (!Array.isArray(payload?.data)) return [];
+    // Also extract and cache context_length from upstream when available
+    const contextLengths = extractContextLengthsFromPayload(payload);
+    if (contextLengths.size > 0) {
+      setModelContextLengths(contextLengths);
+    }
     return payload.data.map((m: any) => m?.id).filter(Boolean);
   }
 
